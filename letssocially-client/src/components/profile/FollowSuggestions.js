@@ -55,52 +55,56 @@ class FollowSuggestions extends Component {
   render() {
     const { suggestions } = this.props.data;
     const { classes, width } = this.props;
-    const suggestionsMarkup = suggestions
-      ? suggestions.map((item, index) => (
-          <Fragment>
-            <SmallProfile key={index} user={item} showBt />
-          </Fragment>
-        ))
-      : null;
+    const suggestionsMarkup =
+      suggestions && !suggestions.message && suggestions.length() > 0
+        ? suggestions.map((item, index) => (
+            <Fragment>
+              <SmallProfile key={index} user={item} showBt />
+            </Fragment>
+          ))
+        : null;
 
     return (
       <div id={this.props.id}>
-        {suggestions && !this.props.hide && (
-          <Card className={classes.root}>
-            <CardContent>
-              <Typography variant="h6" className={classes.title}>
-                Who to follow
-              </Typography>
-              <hr className={classes.horizontalDivider} />
-              {width === "xs" ? (
-                <div className={classes.scroll}>
-                  <GridList
-                    spacing={5}
-                    style={{
-                      marginBottom: 17,
-                    }}
-                    className={classes.gridList}
-                    cols={2}
-                  >
-                    {suggestions &&
-                      !this.props.hide &&
-                      suggestions.map((item, index) => (
-                        <div key={index}>
-                          <GridListTile style={{ width: 130 }}>
-                            <Paper variant="outlined">
-                              <SmallProfile vertical user={item} showBt />
-                            </Paper>
-                          </GridListTile>
-                        </div>
-                      ))}
-                  </GridList>
-                </div>
-              ) : (
-                suggestionsMarkup
-              )}
-            </CardContent>
-          </Card>
-        )}
+        {suggestions &&
+          !suggestions.message &&
+          suggestions.length() > 0 &&
+          !this.props.hide && (
+            <Card className={classes.root}>
+              <CardContent>
+                <Typography variant="h6" className={classes.title}>
+                  Who to follow
+                </Typography>
+                <hr className={classes.horizontalDivider} />
+                {width === "xs" ? (
+                  <div className={classes.scroll}>
+                    <GridList
+                      spacing={5}
+                      style={{
+                        marginBottom: 17,
+                      }}
+                      className={classes.gridList}
+                      cols={2}
+                    >
+                      {suggestions &&
+                        !this.props.hide &&
+                        suggestions.map((item, index) => (
+                          <div key={index}>
+                            <GridListTile style={{ width: 130 }}>
+                              <Paper variant="outlined">
+                                <SmallProfile vertical user={item} showBt />
+                              </Paper>
+                            </GridListTile>
+                          </div>
+                        ))}
+                    </GridList>
+                  </div>
+                ) : (
+                  suggestionsMarkup
+                )}
+              </CardContent>
+            </Card>
+          )}
       </div>
     );
   }

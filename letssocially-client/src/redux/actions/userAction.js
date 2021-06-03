@@ -88,8 +88,8 @@ export const getUserData = () => (dispatch) => {
           err.response.data.code &&
           err.response.data.code === "auth/id-token-expired"
         ) {
-          if (localStorage.getItem("handle")) localStorage.removeItem("handle");
-          dispatch({ type: SET_UNAUTHENTICATED });
+          if (localStorage.getItem("handle")) logoutUser();
+          //dispatch({ type: SET_UNAUTHENTICATED });
         }
       } catch (e) {}
       console.log(err);

@@ -111,6 +111,11 @@ class Screen extends Component {
       actionMethod: null,
     });
   };
+  splitTheMessage = (message) => {
+    let arr = message.split(" ");
+    arr.forEach((element, index) => {});
+    return arr;
+  };
   render() {
     const {
       classes,
@@ -164,7 +169,7 @@ class Screen extends Component {
           </div>
           <CardContent className={classes.content}>
             <Typography className={classes.message} variant="body1">
-              {body.split(" ").map((item) =>
+              {this.splitTheMessage(body).map((item) =>
                 item.startsWith("#") ? (
                   <Typography
                     component={Link}

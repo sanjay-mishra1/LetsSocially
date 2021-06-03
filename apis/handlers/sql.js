@@ -47,7 +47,7 @@ exports.deleteScreen = async (screenId) => {
 };
 exports.addUser = async (data) => {
   let result = await executeQuery(
-    `INSERT users (userHandle,follower) VALUES ('${data.handle}',${data.followers})`
+    `INSERT users (userHandle,follower) VALUES ('${data.handle}',0)`
   );
 
   return result;
