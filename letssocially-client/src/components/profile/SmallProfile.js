@@ -1,10 +1,10 @@
-import { Button, Grid, Typography } from "@material-ui/core";
-import React, { Component, Fragment } from "react";
+import { Grid, Typography } from "@material-ui/core";
+import React, { Fragment } from "react";
 import withStyle from "@material-ui/core/styles/withStyles";
 import PropTypes from "prop-types";
 //Redux
 import store from "../../redux/store";
-import { SEARCH_ACTIVE, SEARCH_INACTIVE } from "../../redux/type";
+import { SEARCH_ACTIVE } from "../../redux/type";
 import FollowButton from "./FollowButton";
 import { useHistory } from "react-router-dom";
 const styles = (theme) => ({
@@ -13,6 +13,7 @@ const styles = (theme) => ({
     width: 50,
     height: 50,
     borderRadius: "50%",
+    objectFit: "cover",
   },
 });
 

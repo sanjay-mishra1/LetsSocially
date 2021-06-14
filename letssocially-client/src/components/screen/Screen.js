@@ -42,9 +42,10 @@ const styles = {
   },
   image: {
     borderRadius: 64,
-    width: 75,
-    height: 64,
-    margin: 10,
+    width: 65,
+    height: 55,
+    marginTop: 10,
+    marginLeft: 10,
   },
   content: {
     width: "-webkit-fill-available",
@@ -151,7 +152,9 @@ class Screen extends Component {
               title="Profile image"
               className={classes.image}
             />
-            <CardContent style={{ width: "-webkit-fill-available" }}>
+            <CardContent
+              style={{ width: "-webkit-fill-available", marginTop: -13 }}
+            >
               <Typography
                 variant="h6"
                 color="primary"

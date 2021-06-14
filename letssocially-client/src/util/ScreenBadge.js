@@ -21,17 +21,23 @@ export default function UserBadge(props) {
         <img
           src={props.screen.userImage}
           alt="Profile"
-          style={{ borderRadius: 64, width: 75, height: 64, margin: 10 }}
+          style={{
+            borderRadius: "30px",
+            objectFit: "cover",
+            width: 60,
+            height: 60,
+            margin: 10,
+          }}
         />
       </Grid>
       <Grid item xs={9}>
         <Typography
           component={Link}
           color="primary"
-          variant="h5"
+          variant="body1"
           to={`/user/${props.screen.userHandle}`}
         >
-          @{props.screen.userHandle}
+          {props.screen.userHandle}
         </Typography>
         {/* <hr className={props.screen.invisibleSeparator} /> */}
         <Typography variant="body2" color="textSecondary">

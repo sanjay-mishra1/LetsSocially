@@ -23,6 +23,7 @@ import axios from "axios";
 import search from "./pages/search";
 axios.defaults.baseURL =
   "https://asia-south1-letssocially.cloudfunctions.net/api";
+//"http://localhost:5000/letssocially/asia-south1/api";
 const theme = createMuiTheme(themeFile);
 const token = localStorage.FBIdToken;
 let authenticated;

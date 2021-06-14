@@ -101,8 +101,6 @@ const getFormatedScreen = (screen) => {
       else return data.append(screen.filename[index], file);
     });
   return data;
-  // data.append('1212s1212_test', fs.createReadStream('/C:/Users/Sanja/Desktop/th (1).jpg'));
-  // data.append('1212s1213_test', fs.createReadStream('/C:/Users/Sanja/Desktop/RB922.jpg'));
 };
 //post screen new method
 //post a screen

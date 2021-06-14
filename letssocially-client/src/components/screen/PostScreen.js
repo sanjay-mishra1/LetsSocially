@@ -10,6 +10,7 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  Divider,
   Fab,
   Grid,
   TextField,
@@ -24,20 +25,20 @@ import {
 } from "../../redux/actions/dataAction";
 import {
   Add,
-  AudiotrackRounded,
   AudiotrackTwoTone,
   Close,
-  EmojiEmotions,
-  InsertPhoto,
   InsertPhotoTwoTone,
-  LocationOn,
-  Movie,
   MovieTwoTone,
   PollTwoTone,
+  GifTwoTone,
+  ChevronLeft,
 } from "@material-ui/icons";
+import SentimentSatisfiedTwoToneIcon from "@material-ui/icons/SentimentSatisfiedTwoTone";
 import MyButton from "../../util/MyButton";
 import MediaPreview from "../../util/MediaPreview";
 import AddPolls from "./AddPolls";
+import EmojiViewer from "./EmojiViewer";
+import { GifViewer } from "./GifViewer";
 const styles = (theme) => ({
   ...theme.spreadIt,
   submitButton: {
@@ -76,6 +77,8 @@ class PostScreen extends Component {
     files: [],
     errors: {},
     type: "",
+    showEmoji: false,
+    showGif: false,
   };
   componentWillReceiveProps(nextProps) {
     if (nextProps.UI.errors) {
@@ -115,7 +118,9 @@ class PostScreen extends Component {
     event.preventDefault();
     let data = {};
     if (this.state.files && this.state.files.length > 0) {
-      data.files = this.state.files.map((item) => item.blob);
+      data.files = this.state.files.map((item) =>
+        item.uri.startsWith("http") ? item.uri : item.blob
+      );
       data.filename = this.state.files.map((item) => item.finalName);
     }
     if (this.state.polls.length > 0) {
@@ -142,12 +147,19 @@ class PostScreen extends Component {
   };
   handleFileSelection = (event) => {
     try {
-      const input = event.target.files[0];
+      let input;
+      console.log(event);
+      if (event.from && event.from === "giphy") input = event;
+      else input = event.target.files[0];
       console.log("file", event, "input ", input);
-      let url = URL.createObjectURL(input);
       const name = `${Math.round(Math.random() * 100000)}`;
-      if (input.type === "video/mp4")
-        this.setPreview(input, input.name, name, this);
+      let url;
+      if (!input.url && !input.url.startsWith("http")) {
+        url = URL.createObjectURL(input);
+        if (input.type === "video/mp4")
+          this.setPreview(input, input.name, name, this);
+      } else url = input.url;
+
       let file = {
         name: input.name,
         uri: url,
@@ -158,7 +170,9 @@ class PostScreen extends Component {
       if (input.type === "audio/mpeg") this.state.files.unshift(file);
       else this.state.files.push(file);
       this.setState({ files: this.state.files });
-    } catch (err) {}
+    } catch (err) {
+      console.log(err);
+    }
   };
   setPreview = async (file, filename, previewName, object) => {
     console.log("loading preview", file);
@@ -167,24 +181,27 @@ class PostScreen extends Component {
         let video = document.getElementById("video");
 
         // video.preload = 'metadata';
-
-        video.addEventListener("canplay", function () {
-          resolve({
-            video: video,
-            duration: Math.round(video.duration * 1000),
-            height: video.videoHeight,
-            width: video.videoWidth,
+        try {
+          video.addEventListener("canplay", function () {
+            resolve({
+              video: video,
+              duration: Math.round(video.duration * 1000),
+              height: video.videoHeight,
+              width: video.videoWidth,
+            });
           });
-        });
 
-        video.src = URL.createObjectURL(file);
+          video.src = URL.createObjectURL(file);
 
-        document.body.appendChild(video);
+          document.body.appendChild(video);
 
-        video.play();
-        setTimeout(function () {
-          video.pause();
-        }, 2000);
+          video.play();
+          setTimeout(function () {
+            video.pause();
+          }, 2000);
+        } catch (error) {
+          reject("");
+        }
       });
     };
 
@@ -254,6 +271,31 @@ class PostScreen extends Component {
     console.log("Handle polls click clicked", this.state.polls.length);
     if (this.state.polls.length === 0) this.setState({ polls: ["", ""] });
   };
+  selectEmoji = (emoji) => {
+    console.log("selected emoji ", emoji);
+    this.setState({ body: this.state.body + emoji });
+  };
+  setEmojiVisibility = () => {
+    this.setState({ showEmoji: !this.state.showEmoji });
+  };
+  setGifVisibility = () => {
+    this.setState({ showGif: !this.state.showGif });
+  };
+  setGifSelected = (gif, e) => {
+    console.log("gif", gif, gif.images.original.url);
+    e.preventDefault();
+    let file = {
+      lastModified: 1605685839310,
+      lastModifiedDate: new Date(),
+      size: gif.images.original.size,
+      type: "image/jpg",
+      from: "giphy",
+      name: gif.title,
+      url: gif.images.original.url,
+    };
+    this.handleFileSelection(file);
+    this.setGifVisibility();
+  };
   render() {
     const { errors } = this.state;
 
@@ -281,6 +323,7 @@ class PostScreen extends Component {
         <Add />
       </Fab>
     );
+    const size = this.props.width === "xs" ? 2 : 1;
     return (
       <Fragment>
         {buttonMarkup}
@@ -292,93 +335,136 @@ class PostScreen extends Component {
           fullScreen={this.props.width === "xs"}
         >
           <div style={{ display: "flex" }}>
-            <MyButton tip="Close" onClick={this.handleClose}>
-              <Close />
-            </MyButton>
-            <DialogTitle>Post a new screen</DialogTitle>
+            {!this.state.showGif ? (
+              <MyButton tip="Close" onClick={this.handleClose}>
+                <Close />
+              </MyButton>
+            ) : (
+              <MyButton tip="Back" onClick={this.setGifVisibility}>
+                <ChevronLeft />
+              </MyButton>
+            )}
+            <DialogTitle>
+              {this.state.showGif ? "Gifs" : "Post a new screen"}
+            </DialogTitle>
           </div>
-          <DialogContent>
-            <form onSubmit={this.handleSubmit}>
-              <TextField
-                name="body"
-                type="text"
-                label="SCREEN"
-                multiline
-                rows="3"
-                placeholder="What's in your mind"
-                error={errors.body ? true : false}
-                helperText={errors.body}
-                className={classes.textField}
-                onChange={this.handleChange}
-                fullWidth
-              />
-              {this.state.files && (
-                <MediaPreview
-                  removeMedia={this.removeMedia}
-                  files={this.state.files}
+          <Divider></Divider>
+          {this.state.showGif && (
+            <DialogContent>
+              {this.state.showGif && (
+                <GifViewer
+                  isSmall={this.props.width === "xs"}
+                  selectGifFn={this.setGifSelected}
                 />
               )}
-              {this.state.polls.length > 0 && (
-                <AddPolls
-                  pollonRemove={this.removePolls}
-                  pollonAdd={this.addPolls}
-                  polls={this.state.polls}
-                  pollsClass={classes.polls}
-                  handlePollsType={this.handlePollsType}
-                  pollsType={this.state.pollsType}
-                  handleChangeInPollsExpiry={this.handleChangeInPollsExpiry}
-                  handleChange={this.handlePollOptionTextChange}
+            </DialogContent>
+          )}
+          {!this.state.showGif && (
+            <DialogContent>
+              <form onSubmit={this.handleSubmit}>
+                <TextField
+                  name="body"
+                  type="text"
+                  label="SCREEN"
+                  multiline
+                  rows="3"
+                  value={this.state.body}
+                  placeholder="What's in your mind"
+                  error={errors.body ? true : false}
+                  helperText={errors.body}
+                  className={classes.textField}
+                  onChange={this.handleChange}
+                  fullWidth
                 />
-              )}
-              <Grid container>
-                <Grid item xs={2}>
-                  <MyButton onClick={this.handleImageClick} tip="Add photo">
-                    <InsertPhotoTwoTone color="primary" />
-                  </MyButton>
-                </Grid>
-                <Grid item xs={2}>
-                  <MyButton onClick={this.handleVideoClick} tip="Add video">
-                    <MovieTwoTone color="primary" />
-                  </MyButton>
-                </Grid>
-
-                <Grid item xs={2}>
-                  <MyButton onClick={this.handleAudioClick} tip="Add audio">
-                    <AudiotrackTwoTone color="primary" />
-                  </MyButton>
-                </Grid>
-                <Grid item xs={2}>
-                  <MyButton onClick={this.handlePollsClick} tip="Add poll">
-                    <PollTwoTone color="primary" />
-                  </MyButton>
-                </Grid>
-              </Grid>
-              <input
-                type="file"
-                id="file"
-                onChange={this.handleFileSelection}
-                hidden="hidden"
-              />
-              <Button
-                type="submit"
-                variant="contained"
-                color="primary"
-                className={classes.submitButton}
-                disabled={loading}
-              >
-                Submit
-                {loading && (
-                  <CircularProgress
-                    size={30}
-                    className={classes.progressSpinner}
+                {this.state.showEmoji && (
+                  <EmojiViewer
+                    isSmall={this.props.width === "xs"}
+                    selectEmojiFn={this.selectEmoji}
+                    showEmoji={this.state.showEmoji}
+                    setEmojiVisibilityFn={this.setEmojiVisibility}
                   />
                 )}
-              </Button>
-            </form>
-            <video id="video" width="420" muted style={{ display: "none" }}>
-              <source />
-            </video>
-          </DialogContent>
+                {this.state.files && (
+                  <MediaPreview
+                    removeMedia={this.removeMedia}
+                    files={this.state.files}
+                  />
+                )}
+
+                {this.state.polls.length > 0 && (
+                  <AddPolls
+                    pollonRemove={this.removePolls}
+                    pollonAdd={this.addPolls}
+                    polls={this.state.polls}
+                    pollsClass={classes.polls}
+                    handlePollsType={this.handlePollsType}
+                    pollsType={this.state.pollsType}
+                    handleChangeInPollsExpiry={this.handleChangeInPollsExpiry}
+                    handleChange={this.handlePollOptionTextChange}
+                  />
+                )}
+
+                <input
+                  type="file"
+                  id="file"
+                  onChange={this.handleFileSelection}
+                  hidden="hidden"
+                />
+                <Grid container>
+                  <Grid item xs={size}>
+                    <MyButton onClick={this.handleImageClick} tip="Add photo">
+                      <InsertPhotoTwoTone color="primary" />
+                    </MyButton>
+                  </Grid>
+                  <Grid item xs={size}>
+                    <MyButton onClick={this.handleVideoClick} tip="Add video">
+                      <MovieTwoTone color="primary" />
+                    </MyButton>
+                  </Grid>
+
+                  <Grid item xs={size}>
+                    <MyButton onClick={this.handleAudioClick} tip="Add audio">
+                      <AudiotrackTwoTone color="primary" />
+                    </MyButton>
+                  </Grid>
+                  <Grid item xs={size}>
+                    <MyButton onClick={this.handlePollsClick} tip="Add poll">
+                      <PollTwoTone color="primary" />
+                    </MyButton>
+                  </Grid>
+                  <Grid item xs={size}>
+                    <MyButton onClick={this.setEmojiVisibility} tip="Add Emoji">
+                      <SentimentSatisfiedTwoToneIcon color="primary" />
+                    </MyButton>
+                  </Grid>
+                  {/* <Grid item xs={size}>
+                    <MyButton onClick={this.setGifVisibility} tip="Add Gif">
+                      <GifTwoTone color="primary" />
+                    </MyButton>
+                  </Grid> */}
+                </Grid>
+
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  className={classes.submitButton}
+                  disabled={loading}
+                >
+                  Submit
+                  {loading && (
+                    <CircularProgress
+                      size={30}
+                      className={classes.progressSpinner}
+                    />
+                  )}
+                </Button>
+              </form>
+              <video id="video" width="420" muted style={{ display: "none" }}>
+                <source />
+              </video>
+            </DialogContent>
+          )}
         </Dialog>
       </Fragment>
     );

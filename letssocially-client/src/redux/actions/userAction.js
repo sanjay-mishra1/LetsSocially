@@ -58,10 +58,14 @@ export const signupUser = (newUserData, history) => (dispatch) => {
 };
 
 export const logoutUser = () => (dispatch) => {
+  logout();
+  dispatch({ type: SET_UNAUTHENTICATED });
+};
+const logout = () => {
   localStorage.removeItem("FBIdToken");
   localStorage.removeItem("handle");
+  console.log("logging out user");
   delete axios.defaults.headers.common["Authorization"];
-  dispatch({ type: SET_UNAUTHENTICATED });
   if (
     window.location.href.includes !== "login" ||
     window.location.href.includes !== "signup"
@@ -88,11 +92,16 @@ export const getUserData = () => (dispatch) => {
           err.response.data.code &&
           err.response.data.code === "auth/id-token-expired"
         ) {
-          if (localStorage.getItem("handle")) logoutUser();
+          console.log("user token expired");
+          if (localStorage.getItem("handle") != null) logout();
+          else
+            console.log(
+              "user handle not found",
+              localStorage.getItem("handle")
+            );
           //dispatch({ type: SET_UNAUTHENTICATED });
         }
       } catch (e) {}
-      console.log(err);
     });
 };
 

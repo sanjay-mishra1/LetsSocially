@@ -126,16 +126,22 @@ class ScreenDialog extends Component {
     ) : (
       <Grid container>
         <Grid item>
-          <img src={userImage} alt="Profile" className={classes.profileImage} />
+          <img
+            style={{ marginRight: 5 }}
+            src={userImage}
+            alt="Profile"
+            className={classes.profileImage}
+          />
         </Grid>
         <Grid item xs={9} lg={9} sm={9}>
           <Typography
             component={Link}
             color="primary"
-            variant="h5"
+            variant="body1"
+            style={{ fontWeight: "bold" }}
             to={`/user/${userHandle}`}
           >
-            @{userHandle}
+            {userHandle}
           </Typography>
           <hr className={classes.invisibleSeparator} />
           <Typography variant="body2" color="textSecondary">
@@ -173,6 +179,7 @@ class ScreenDialog extends Component {
               openDialog={this.props.openScreenImageDialog}
             />
           )}
+          <br />
           <LikeButton screenId={screenId} key={screenId} />
           <span>{likeCount} Likes</span>
           <MyButton tip="comment">

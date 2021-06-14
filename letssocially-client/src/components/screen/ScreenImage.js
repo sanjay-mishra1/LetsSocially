@@ -55,8 +55,10 @@ const style = (theme) => ({
   },
   closeButton: {
     float: "right",
-    position: "absolute",
+    // position: "absolute",
     zIndex: "inherit",
+    position: "fixed",
+    marginTop: "-90vh",
   },
   scroll: {
     flexGrow: 1,
@@ -99,6 +101,7 @@ const style = (theme) => ({
   drawerPaper: {
     backgroundColor: "transparent",
     width: drawerWidth,
+    placeContent: "center",
     [theme.breakpoints.down("xs")]: {
       width: "100%",
     },
